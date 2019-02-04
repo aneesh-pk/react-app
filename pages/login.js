@@ -25,14 +25,24 @@ export default class Login extends Component {
         client.mutate({
             mutation: gql`
               mutation LoginRequest{
-                log(user: {email: "${this.state.email}", password: "${this.state.password}"}) {
+                login(user: {email: "${this.state.email}", password: "${this.state.password}"}) {
                   info
                   success
+                  token
+                  user{
+                    id
+                    name
+                    email
+                  }
                 }
               }
             `
         })
-            .then(result => console.log(result))
+            .then(result => {
+                if(result.data.login.success){
+                    window.localStorage.setItem('access_token', result.data.login.token);
+                }
+            })
             .catch(e => {
                 console.log(e)
             })
