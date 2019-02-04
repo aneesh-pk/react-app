@@ -1,19 +1,21 @@
-export default (props) =>(
-	<div className={`main-content`}>
-		Page wrapper
-		{props.children}
-		<style jsx>{`
-			@media all and (min-width: 480px) {
-			  .Login {
-			    padding: 60px 0;
-			  }
+import React, {Component} from 'react';
+import {Container} from "react-bootstrap";
+import LandingPageHeader from "./LandingPageHeader";
+import LandingPageAlert from "./LandingPageAlert";
 
-			  .Login form {
-			    margin: 0 auto;
-			    max-width: 320px;
-			  }
-			}
-		`}</style>
-	</div>
+export default class LandingPageWrapper extends Component {
 
-)
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <Container className="main-content" style={{height: '100vh'}}>
+                <LandingPageHeader/>
+                <LandingPageAlert/>
+                {this.props.children}
+            </Container>
+        )
+    }
+}
