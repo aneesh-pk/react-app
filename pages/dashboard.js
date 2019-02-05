@@ -13,20 +13,60 @@ class Dashboard extends Component {
         this.state = {
             authChecked: false,
             list: this.refs.list,
-            refetch: true
+            refetch: true,
+            inputFile: null
         }
     }
 
     handleFileUpload = (e) => {
         e.preventDefault();
-        this.setState({ refetch: false });
-        setTimeout(() => {
-            this.setState({ refetch: true });
-        }, 1000);
+        if (this.state.inputFile) {
+            this.setState({ refetch: false });
+            client.mutate({
+                mutation: gql`
+                  mutation uploadFile{
+                    upload_file(file: {name: "${this.state.inputFile.name}", mime: "${this.state.inputFile.mime}", blob: "${this.state.inputFile.blob}"}) {
+                      info
+                      success
+                    }
+                  }
+                `
+            }).then(result => {
+                console.log(data)
+            }).catch(e => {
+                //todo show message
+                console.log(e)
+            }).finally(() =>{
+                this.setState({ refetch: true });
+            })
+        }
+
     }
 
-    refectFilesList = (e) => {
+    getBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
 
+    handleFileChange = async (files) => {
+        if (files.length == 1) {
+            let fileBase64 = await this.getBase64(files[0]);
+            let file = files[0];
+            this.setState({
+                inputFile: {
+                    name: file.name,
+                    mime: file.type,
+                    blob: fileBase64
+                }
+            });
+        }
+
+        else
+            this.setState({ inputFile: null })
     }
 
     componentDidMount() {
@@ -144,7 +184,7 @@ class Dashboard extends Component {
                             <Col sm={12}>
                                 <Row>
                                     <Col sm={6}>
-                                        <FormControl type="file" placeholder="Select File" className="mr-sm-2" />
+                                        <FormControl type="file" placeholder="Select File" className="mr-sm-2" onChange={(e) => this.handleFileChange(e.target.files)} />
                                     </Col>
                                     <Col sm={6} className="text-left">
                                         <Button variant="outline-success" onClick={this.handleFileUpload}>Upload</Button>
