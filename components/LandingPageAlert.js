@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {Alert, Button} from "react-bootstrap";
+import React, { Component } from 'react';
+import { Alert, Button } from "react-bootstrap";
 
 export default class LandingPageAlert extends Component {
 
@@ -7,9 +7,9 @@ export default class LandingPageAlert extends Component {
         super(props);
 
         this.state = {
-            show: (typeof props.message !== "undefined"),
-            message: props.message ? props.message : '',
-            variant: (props.success === true) ? 'success' : 'danger'
+            show: (props.notification && typeof props.notification.message !== "undefined"),
+            message: (props.notification && props.notification.message) ? props.notification.message : '',
+            variant: (props.notification && props.notification.success === true) ? 'success' : 'danger'
         };
 
     }
@@ -17,11 +17,14 @@ export default class LandingPageAlert extends Component {
     render() {
         return (
             <>
-                <Alert dismissible variant={this.state.variant}>
-                    <p>
-                        {this.state.message}
-                    </p>
-                </Alert>
+                {this.props.notification && (
+                    <Alert dismissible variant={this.state.variant}>
+                        <Alert.Heading>{this.state.variant === "success" ? "Success" : "Error"}</Alert.Heading>
+                        <p>
+                            {this.state.message}
+                        </p>
+                    </Alert>
+                )}
             </>
 
         )

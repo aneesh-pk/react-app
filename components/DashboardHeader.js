@@ -2,7 +2,7 @@ import Head from 'next/head'
 import React, {Component} from 'react';
 
 
-export default class LandingPageHeader extends Component {
+export default class DashboardHeader extends Component {
     constructor(props) {
         super(props);
     }
@@ -11,7 +11,7 @@ export default class LandingPageHeader extends Component {
         return (
             <>
                 <Head>
-                    <title>My page title</title>
+                    <title>Dashboard</title>
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" key="viewport"/>
                 </Head>
                 <Head>
