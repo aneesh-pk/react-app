@@ -5,6 +5,8 @@ import gql from "graphql-tag";
 import { Query, ApolloProvider } from "react-apollo";
 import Router from "next/router";
 import { Row, Col, ListGroup, Container, Form, FormControl, Button } from "react-bootstrap";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 class Dashboard extends Component {
@@ -32,11 +34,17 @@ class Dashboard extends Component {
                   }
                 `
             }).then(result => {
-                console.log(data)
+                if (!result.data.upload_file.success) {
+                    //todo show error
+                    toast.error(result.data.upload_file.info);
+                }
+                else{
+                    toast.success(result.data.upload_file.info);    
+                }
             }).catch(e => {
                 //todo show message
-                console.log(e)
-            }).finally(() =>{
+                toast.error(result.data.upload_file.info);
+            }).finally(() => {
                 this.setState({ refetch: true });
             })
         }
@@ -107,6 +115,7 @@ class Dashboard extends Component {
                 files{
                     id
                     name
+                    blob
                 }
             }
         }`;
@@ -120,21 +129,52 @@ class Dashboard extends Component {
                     if (error)
                         return `Error! ${error.message}`;
 
-                    return (
+                    const handleFileDelete = (refetch, file_id) => {
+                        client.mutate({
+                            mutation: gql`
+                              mutation deleteFile{
+                                delete_file(file: {id: ${file_id}}) {
+                                  info
+                                  success
+                                }
+                              }
+                            `
+                        }).then(result => {
+                            if(!result.data.delete_file.success){
+                                toast.error(result.data.delete_file.info);
+                            }
+                            else{
+                                toast.success(result.data.delete_file.info);
+                            }
+                        }).catch(e => {
+                            toast.error(result.data.delete_file.info);
+                        }).finally(() => {
+                            refetch();
+                        })
+                    }
 
+                    return (
                         <ListGroup>
                             {
                                 data.user_files.success && data.user_files.files.length > 0 ? (
                                     data.user_files.files.map(user_file => (
                                         <ListGroup.Item key={user_file.id}>
-                                            {user_file.name}
-                                            <i className="delete-file" onClick={() => refetch()}>X</i>
+                                            <Row>
+                                                <Col sm={9}>
+                                                    <a href={user_file.blob} download={user_file.name}>
+                                                        {user_file.name}
+                                                    </a>
+                                                </Col>
+                                                <Col sm={3}>
+                                                    <i className="delete-file" style={{ "cursor": "pointer", "fontStyle": "normal", "float": "right" }} onClick={() => handleFileDelete(refetch, user_file.id)}>X</i>
+                                                </Col>
+                                            </Row>
+
                                         </ListGroup.Item>
                                     ))
                                 ) : (<p>No user files found</p>)
                             }
                         </ListGroup>
-
                     );
                 }}
             </Query>
@@ -143,6 +183,7 @@ class Dashboard extends Component {
         return (
             <ApolloProvider client={client}>
                 <DasboardWrapper authChecked={this.state.authChecked}>
+                    <ToastContainer />
                     <Container>
                         <Row>
                             <Col sm={12}>

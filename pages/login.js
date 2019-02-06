@@ -4,6 +4,8 @@ import LandingPageWrapper from '../components/LandingPageWrapper';
 import { client } from "../config/apollo-client";
 import gql from "graphql-tag";
 import Router, { withRouter } from "next/router";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 class Login extends Component {
     constructor(props) {
@@ -34,7 +36,7 @@ class Login extends Component {
             `
         }).then(result => {
             if (!result.errors && result.data.user.id) {
-                // Router.push("/dashboard");
+                Router.push("/dashboard");
             }
         }).catch(err => {
             window.localStorage.clear();
@@ -69,10 +71,11 @@ class Login extends Component {
                 window.localStorage.setItem('access_token', result.data.login.token);
                 window.localStorage.setItem('user', JSON.stringify(result.data.login.user));
                 Router.push("/dashboard");
+            }else{
+                toast.error(result.data.login.info);
             }
         }).catch(e => {
-            //todo show message
-            console.log(e)
+            toast.error("Could not login");
         })
     }
 
@@ -83,6 +86,7 @@ class Login extends Component {
             <>
                 {this.state.authChecked && (
                     <LandingPageWrapper notifications={this.state.notifications}>
+                        <ToastContainer />
                         <Card style={{ width: '25rem', margin: '0 auto' }}>
                             <Card.Body>
 

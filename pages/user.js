@@ -4,7 +4,8 @@ import DasboardWrapper from "../components/DashboardWrapper";
 import { client } from "../config/apollo-client";
 import gql from "graphql-tag";
 import Router from "next/router";
-import { from } from 'zen-observable';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 class User extends Component {
@@ -64,32 +65,33 @@ class User extends Component {
               }
             `
         }).then(result => {
-            if (!result.errors && result.data.user.id) {
-                inst.setState({ user: result.data.user });
-                inst.setState({ name: result.data.user.name });
+            if (!result.errors && result.data.update_user.user.id) {
+                toast.success(result.data.update_user.info);
+                inst.setState({ user: result.data.update_user.user });
+                inst.setState({ name: result.data.update_user.user.name });
             } else {
-                
+                toast.error(result.data.update_user.info);
             }
         }).catch(e => {
             //todo show message
-            console.log(e)
+
         })
     }
 
     handleInputChange = (e) => {
-        this.setState({isValid: false});
+        this.setState({ isValid: false });
         this.setState({ [e.target.id]: e.target.value }, () => {
-            if (this.state.name.trim().length > 0 && this.state.name !== this.state.user.name){
-                this.setState({isValid: true});
+            if (this.state.name.trim().length > 0 && this.state.name !== this.state.user.name) {
+                this.setState({ isValid: true });
             }
         });
-
     }
 
     render() {
         return (
             <>
                 <DasboardWrapper authChecked={this.state.authChecked}>
+                    <ToastContainer />
                     <Form onSubmit={this.handleSubmit}>
 
 
