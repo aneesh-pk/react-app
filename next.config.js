@@ -1,2 +1,9 @@
 const withCSS = require('@zeit/next-css')
-module.exports = withCSS()
+const customMapping = {
+    exportPathMap: async function (defaultPathMap) {
+        return {
+            '/': { page: '/login' }
+        }
+    }
+}
+module.exports = withCSS(customMapping)
